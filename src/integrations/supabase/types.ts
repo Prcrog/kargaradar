@@ -14,16 +14,123 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      shipment_events: {
+        Row: {
+          created_at: string
+          id: string
+          location: string | null
+          note: string | null
+          shipment_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          note?: string | null
+          shipment_id: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          note?: string | null
+          shipment_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipment_events_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipments: {
+        Row: {
+          created_at: string
+          customer_doc: string
+          customer_name: string
+          destination: string
+          estimated_delivery: string | null
+          id: string
+          nfe_key: string | null
+          nfe_number: string | null
+          origin: string
+          status: string
+          tracking_code: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_doc: string
+          customer_name: string
+          destination: string
+          estimated_delivery?: string | null
+          id?: string
+          nfe_key?: string | null
+          nfe_number?: string | null
+          origin: string
+          status?: string
+          tracking_code?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_doc?: string
+          customer_name?: string
+          destination?: string
+          estimated_delivery?: string | null
+          id?: string
+          nfe_key?: string | null
+          nfe_number?: string | null
+          origin?: string
+          status?: string
+          tracking_code?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      track_shipment: {
+        Args: { _doc?: string; _nfe_key?: string; _number?: string }
+        Returns: Json
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +257,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
