@@ -13,8 +13,9 @@ function toDate(v: unknown): string | null {
   const s = String(v).trim();
   const br = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
   if (br) {
-    const y = br[3].length === 2 ? "20" + br[3] : br[3];
-    return `${y}-${br[2].padStart(2, "0")}-${br[1].padStart(2, "0")}`;
+    const [, d = "", m = "", yy = ""] = br;
+    const y = yy.length === 2 ? "20" + yy : yy;
+    return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
   }
   if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
   return null;
@@ -32,7 +33,7 @@ export function ImportExcel() {
     setBusy(true);
     try {
       const wb = XLSX.read(await file.arrayBuffer(), { cellDates: true });
-      const rows = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: true, defval: "" });
+      const rows = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[wb.SheetNames[0] ?? ""]!, { header: 1, raw: true, defval: "" });
       const str = (v: unknown) => String(v ?? "").trim();
       const data = rows
         .filter((r) => r.some((c) => str(c) !== ""))
