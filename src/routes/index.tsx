@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Search, MapPin, Calendar, CheckCircle2, Circle, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
@@ -8,14 +9,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { STEPS, statusLabel } from "@/lib/status";
-import hero from "@/assets/hero-truck.jpg";
+import hero from "@/assets/kargaradar-truck.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Rastreie sua entrega — Guanabara Prime Transportes" },
+      { title: "Rastreie sua entrega — KargaRadar" },
       { name: "description", content: "Consulte o status da sua entrega pela NF-e, chave de acesso ou código de rastreio." },
-      { property: "og:title", content: "Rastreie sua entrega — Guanabara Prime Transportes" },
+      { property: "og:title", content: "Rastreie sua entrega — KargaRadar" },
       { property: "og:description", content: "Consulte o status da sua entrega pela NF-e, chave de acesso ou código de rastreio." },
     ],
   }),
@@ -30,6 +31,11 @@ type Result = {
 };
 
 function Index() {
+  const [company, setCompany] = useState("");
+  const companies = useQuery({ queryKey: ["trackingCompanies"], queryFn: async () => {
+    const { data, error } = await supabase.rpc("tracking_companies");
+    if (error) throw error; return data;
+  } });
   const [mode, setMode] = useState("nf");
   const [number, setNumber] = useState("");
   const [doc, setDoc] = useState("");
@@ -42,7 +48,7 @@ function Index() {
     e.preventDefault();
     setLoading(true); setError(""); setResult(null);
     const args = mode === "chave" ? { _nfe_key: key } : { _number: number, _doc: doc };
-    const { data, error } = await supabase.rpc("track_shipment", args);
+    const { data, error } = await supabase.rpc("track_company_shipment", { ...args, _company_slug: company });
     setLoading(false);
     if (error || !data) { setError("Nenhuma entrega encontrada. Confira os dados informados."); return; }
     setResult(data as unknown as Result);
@@ -51,15 +57,16 @@ function Index() {
   return (
     <div className="min-h-screen">
       <section className="relative overflow-hidden">
-        <img src={hero} alt="Caminhão Guanabara Prime na estrada" width={1600} height={912} className="absolute inset-0 h-full w-full object-cover" />
+        <img src={hero} alt="Caminhão de cargas na estrada" width={1600} height={912} className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-hero-overlay" />
         <Header dark />
         <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-32 text-navy-foreground">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Rastreamento</p>
-          <h1 className="mt-3 max-w-xl text-4xl font-extrabold md:text-6xl">Onde está a sua entrega?</h1>
+          <h1 className="mt-3 max-w-xl text-4xl font-extrabold md:text-6xl">KargaRadar</h1>
           <p className="mt-4 max-w-md opacity-80">Consulte em tempo real pela nota fiscal, chave de acesso da NF-e ou código de rastreio.</p>
 
           <form onSubmit={search} className="mt-8 max-w-2xl rounded-xl bg-card p-6 text-card-foreground shadow-2xl">
+            <div className="mb-4 space-y-2"><Label htmlFor="tracking-company">Transportadora</Label><select id="tracking-company" className="h-10 w-full rounded-md border bg-background px-3 text-sm" required value={company} onChange={e => { setCompany(e.target.value); setResult(null); setError(""); }}><option value="">{companies.isLoading ? "Carregando..." : "Selecione a transportadora"}</option>{companies.data?.map(c => <option key={c.slug} value={c.slug}>{c.name}</option>)}</select>{companies.isError && <p className="text-sm text-destructive">Não foi possível carregar as transportadoras.</p>}</div>
             <Tabs value={mode} onValueChange={setMode}>
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="nf">Nº da NF</TabsTrigger>
@@ -97,11 +104,6 @@ function Index() {
           </div>
         )}
         {result && <ResultCard r={result} />}
-        {!result && !error && (
-          <p className="text-center text-sm text-muted-foreground">
-            Exemplo para teste: NF <b>123</b> + CPF <b>123.456.789-09</b>
-          </p>
-        )}
       </main>
     </div>
   );

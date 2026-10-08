@@ -16,13 +16,15 @@ import { STATUSES, statusLabel } from "@/lib/status";
 import { ImportExcel } from "@/components/ImportExcel";
 import { ExportExcel } from "@/components/ExportExcel";
 import { UsersManager } from "@/components/UsersManager";
+import { CompanySetup, PlatformCompanies } from "@/components/CompanySetup";
+import { canUseCompany } from "@/lib/company";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "Painel de entregas — Guanabara Prime" },
+      { title: "Painel de entregas — KargaRadar" },
       { name: "description", content: "Cadastre e atualize entregas." },
-      { property: "og:title", content: "Painel de entregas — Guanabara Prime" },
+      { property: "og:title", content: "Painel de entregas — KargaRadar" },
       { property: "og:description", content: "Cadastre e atualize entregas." },
     ],
   }),
@@ -35,16 +37,20 @@ function Admin() {
   const [filter, setFilter] = useState("");
 
   const role = useQuery({
-    queryKey: ["isAdmin"],
+    queryKey: ["companyAccess"],
     queryFn: async () => {
       const { data: u } = await supabase.auth.getUser();
-      const { data } = await supabase.rpc("has_role", { _user_id: u.user!.id, _role: "admin" });
-      return !!data;
+      if (!u.user) throw new Error("Entre na sua conta");
+      const { data: member, error } = await supabase.from("company_roles").select("*").eq("user_id", u.user.id).maybeSingle();
+      if (error) throw error;
+      const { data: platform } = await supabase.rpc("is_platform_admin");
+      const { data: company } = member ? await supabase.from("companies").select("*").eq("id", member.company_id).single() : { data: null };
+      return { member, company, platform: Boolean(platform), allowed: canUseCompany({ companyId: member?.company_id ?? null, approved: member?.approved ?? false, status: company?.status ?? null }) };
     },
   });
   const list = useQuery({
     queryKey: ["shipments"],
-    enabled: role.data === true,
+    enabled: role.data?.allowed === true,
     queryFn: async () => {
       const { data, error } = await supabase.from("shipments").select("*").order("created_at", { ascending: false });
       if (error) throw error;
@@ -67,19 +73,22 @@ function Admin() {
       <main className="mx-auto max-w-6xl px-6 py-10">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-3xl font-bold">Entregas</h1>
-          <div className="flex gap-2">
-            {role.data && <UsersManager />}
-            {role.data && <ImportExcel />}
-            {role.data && <ShipmentForm />}
+          <div className="flex flex-wrap gap-2">
+            {role.data?.allowed && role.data.member?.role === "owner" && <UsersManager />}
+            {role.data?.allowed && <ImportExcel />}
+            {role.data?.allowed && <ShipmentForm />}
             <Button variant="outline" onClick={signOut}><LogOut className="mr-2 h-4 w-4" />Sair</Button>
           </div>
         </div>
 
-        {role.data === false && (
-          <p className="mt-8 rounded-lg border bg-card p-6 text-muted-foreground">Sua conta ainda não tem permissão de administrador. Peça ao responsável para liberar seu acesso.</p>
-        )}
+        {role.isLoading && <p className="mt-8 text-muted-foreground">Carregando sua transportadora...</p>}
+        {role.isError && <p className="mt-8 text-destructive">Não foi possível carregar seu acesso.</p>}
+        {role.data && !role.data.member && <CompanySetup />}
+        {role.data?.company && <p className="mt-3 text-muted-foreground">{role.data.company.name} · {role.data.company.slug}</p>}
+        {role.data?.member && !role.data.allowed && <p className="mt-8 text-muted-foreground">{role.data.company?.status === "suspended" ? "Transportadora suspensa. Entre em contato com o KargaRadar." : role.data.company?.status === "pending" ? "Cadastro recebido. Aguarde a aprovação do administrador KargaRadar." : "Aguarde a liberação do responsável pela sua transportadora."}</p>}
+        {role.data?.platform && <PlatformCompanies />}
 
-        {role.data && (
+        {role.data?.allowed && (
           <>
             <div className="mt-6 flex flex-wrap items-center gap-2">
               <Input className="max-w-sm" placeholder="Buscar por NF, código, cliente, CPF/CNPJ..." value={filter} onChange={(e) => setFilter(e.target.value)} />
@@ -108,6 +117,7 @@ function Admin() {
                 </tbody>
               </table>
             </div>
+            {list.isError && <p className="mt-3 text-destructive">Não foi possível carregar as entregas.</p>}
           </>
         )}
       </main>
