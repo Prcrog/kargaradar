@@ -57,7 +57,7 @@ function Admin() {
   }
 
   const rows = (list.data ?? []).filter((s) =>
-    [s.tracking_code, s.nfe_number, s.customer_name, s.customer_doc].join(" ").toLowerCase().includes(filter.toLowerCase()));
+    [s.tracking_code, s.nfe_number, s.nfe_key, s.customer_name, s.customer_doc].join(" ").toLowerCase().includes(filter.toLowerCase()));
 
   return (
     <div className="min-h-screen">
