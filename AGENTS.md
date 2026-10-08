@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Pre-bundle UI dependencies in vite.config.ts optimizeDeps.include when adding new Radix/UI packages — mid-session dependency re-optimization loads two React copies and blanks the preview.
