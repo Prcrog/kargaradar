@@ -31,6 +31,7 @@ export function UsersManager() {
       <DialogContent className="max-w-2xl">
         <DialogHeader><DialogTitle>Liberar acesso de usuários</DialogTitle></DialogHeader>
         {q.isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}
+        {q.isError && <p className="text-sm text-destructive">Não foi possível carregar a equipe. Tente novamente.</p>}
         <div className="divide-y">
           {(q.data ?? []).map((u) => (
             <div key={u.id} className="flex items-center justify-between gap-3 py-3">
