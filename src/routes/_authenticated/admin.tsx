@@ -79,7 +79,10 @@ function Admin() {
 
         {role.data && (
           <>
-            <Input className="mt-6 max-w-sm" placeholder="Buscar por NF, código, cliente, CPF/CNPJ..." value={filter} onChange={(e) => setFilter(e.target.value)} />
+            <div className="mt-6 flex flex-wrap items-center gap-2">
+              <Input className="max-w-sm" placeholder="Buscar por NF, código, cliente, CPF/CNPJ..." value={filter} onChange={(e) => setFilter(e.target.value)} />
+              <ExportExcel rows={rows} filter={filter} />
+            </div>
             <div className="mt-4 overflow-x-auto rounded-xl border bg-card">
               <table className="w-full text-sm">
                 <thead className="bg-muted text-left text-muted-foreground">
