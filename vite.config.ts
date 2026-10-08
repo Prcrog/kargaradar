@@ -12,4 +12,23 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    // Pre-bundle UI deps up front so the dev server doesn't re-optimize mid-session
+    // (a mid-session re-optimize can load two React copies -> "reading 'useContext'" crash).
+    optimizeDeps: {
+      include: [
+        "@supabase/supabase-js",
+        "sonner",
+        "lucide-react",
+        "@radix-ui/react-dialog",
+        "@radix-ui/react-select",
+        "@radix-ui/react-label",
+        "@radix-ui/react-slot",
+        "@radix-ui/react-tabs",
+        "class-variance-authority",
+        "clsx",
+        "tailwind-merge",
+      ],
+    },
+  },
 });
