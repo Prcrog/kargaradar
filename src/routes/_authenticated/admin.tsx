@@ -113,7 +113,7 @@ function ShipmentForm() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const { data, error } = await supabase.from("shipments").insert({ ...f, estimated_delivery: f.estimated_delivery || null }).select().single();
-    if (error) return toast.error("Erro ao salvar");
+    if (error) { toast.error("Erro ao salvar"); return; }
     await supabase.from("shipment_events").insert({ shipment_id: data.id, status: "coletado", location: f.origin, note: "Mercadoria coletada" });
     toast.success(`Entrega criada: ${data.tracking_code}`);
     qc.invalidateQueries({ queryKey: ["shipments"] });
@@ -154,7 +154,7 @@ function UpdateStatus({ id, current }: { id: string; current: string }) {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const { error } = await supabase.from("shipment_events").insert({ shipment_id: id, status, location: location || null, note: note || null });
-    if (error) return toast.error("Erro ao atualizar");
+    if (error) { toast.error("Erro ao atualizar"); return; }
     await supabase.from("shipments").update({ status, updated_at: new Date().toISOString() }).eq("id", id);
     toast.success("Status atualizado");
     qc.invalidateQueries({ queryKey: ["shipments"] });
