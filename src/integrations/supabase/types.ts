@@ -14,6 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
+      companies: {
+        Row: {
+          cnpj: string
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          status: string
+        }
+        Insert: {
+          cnpj: string
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          status?: string
+        }
+        Update: {
+          cnpj?: string
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      company_roles: {
+        Row: {
+          approved: boolean
+          company_id: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          approved?: boolean
+          company_id: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          approved?: boolean
+          company_id?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_roles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_roles: {
+        Row: {
+          role: string
+          user_id: string
+        }
+        Insert: {
+          role: string
+          user_id: string
+        }
+        Update: {
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       shipment_events: {
         Row: {
           created_at: string
@@ -51,6 +125,7 @@ export type Database = {
       }
       shipments: {
         Row: {
+          company_id: string | null
           created_at: string
           customer_doc: string
           customer_name: string
@@ -65,6 +140,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          company_id?: string | null
           created_at?: string
           customer_doc: string
           customer_name: string
@@ -79,6 +155,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          company_id?: string | null
           created_at?: string
           customer_doc?: string
           customer_name?: string
@@ -92,7 +169,15 @@ export type Database = {
           tracking_code?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "shipments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -117,6 +202,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_company: { Args: { _company_id: string }; Returns: boolean }
+      current_company_id: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -124,9 +211,40 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_company_owner: { Args: { _company_id: string }; Returns: boolean }
+      is_platform_admin: { Args: never; Returns: boolean }
+      join_company: { Args: { _slug: string }; Returns: undefined }
+      register_company: {
+        Args: { _cnpj: string; _name: string; _slug: string }
+        Returns: string
+      }
+      set_company_status: {
+        Args: { _id: string; _status: string }
+        Returns: undefined
+      }
+      set_member_access: {
+        Args: { _approved: boolean; _user_id: string }
+        Returns: undefined
+      }
+      track_company_shipment: {
+        Args: {
+          _company_slug: string
+          _doc?: string
+          _nfe_key?: string
+          _number?: string
+        }
+        Returns: Json
+      }
       track_shipment: {
         Args: { _doc?: string; _nfe_key?: string; _number?: string }
         Returns: Json
+      }
+      tracking_companies: {
+        Args: never
+        Returns: {
+          name: string
+          slug: string
+        }[]
       }
     }
     Enums: {

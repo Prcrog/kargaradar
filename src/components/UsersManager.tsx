@@ -31,6 +31,7 @@ export function UsersManager() {
       <DialogContent className="max-w-2xl">
         <DialogHeader><DialogTitle>Liberar acesso de usuários</DialogTitle></DialogHeader>
         {q.isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}
+        {q.isError && <p className="text-sm text-destructive">Não foi possível carregar a equipe. Tente novamente.</p>}
         <div className="divide-y">
           {(q.data ?? []).map((u) => (
             <div key={u.id} className="flex items-center justify-between gap-3 py-3">
@@ -43,7 +44,7 @@ export function UsersManager() {
               </div>
               <div className="flex items-center gap-2">
                 {u.isAdmin ? <Badge>Liberado</Badge> : <Badge variant="secondary">Pendente</Badge>}
-                {u.isAdmin
+                {u.isOwner ? <Badge variant="outline">Proprietário</Badge> : u.isAdmin
                   ? <Button size="sm" variant="outline" onClick={() => toggle(u.id, false)}>Remover</Button>
                   : <Button size="sm" onClick={() => toggle(u.id, true)}>Liberar</Button>}
               </div>

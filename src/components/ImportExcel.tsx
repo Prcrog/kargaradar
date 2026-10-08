@@ -33,7 +33,9 @@ export function ImportExcel() {
     setBusy(true);
     try {
       const wb = XLSX.read(await file.arrayBuffer(), { cellDates: true });
-      const rows = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[wb.SheetNames[0] ?? ""]!, { header: 1, raw: true, defval: "" });
+      const sheet = wb.Sheets[wb.SheetNames[0] ?? ""];
+      if (!sheet) { toast.error("Planilha vazia."); return; }
+      const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, raw: true, defval: "" });
       const str = (v: unknown) => String(v ?? "").trim();
       const data = rows
         .filter((r) => r.some((c) => str(c) !== ""))
