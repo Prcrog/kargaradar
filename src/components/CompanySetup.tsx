@@ -7,6 +7,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 
+function toSlug(v: string) {
+  return v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-+/, "").slice(0, 60);
+}
+
+function friendlyError(msg: string) {
+  if (/companies_slug|slug_key/i.test(msg)) return "Esse identificador já está em uso. Escolha outro (ex.: nome-da-empresa-rj).";
+  if (/slug_check|check constraint/i.test(msg)) return "O identificador deve ter pelo menos 3 caracteres, só letras minúsculas, números e hífen.";
+  if (/CNPJ/i.test(msg)) return "Informe a razão social e um CNPJ com 14 números.";
+  if (/vinculada|company_roles|duplicate/i.test(msg)) return "Esta conta já está ligada a uma transportadora.";
+  if (/não encontrada/i.test(msg)) return "Transportadora não encontrada ou ainda não aprovada. Confira o identificador com o responsável.";
+  return "Não foi possível enviar o cadastro. Confira os dados e tente novamente.";
+}
+
 export function CompanySetup() {
   const qc = useQueryClient();
   const [joining, setJoining] = useState(false);
@@ -14,25 +28,38 @@ export function CompanySetup() {
   const [name, setName] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [slug, setSlug] = useState("");
+  const [slugTouched, setSlugTouched] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   async function submit(e: React.FormEvent) {
-    e.preventDefault(); setBusy(true);
+    e.preventDefault(); setFormError(null);
+    const finalSlug = toSlug(slug).replace(/-+$/, "");
+    if (!joining) {
+      if (name.trim().length < 3) { setFormError("Informe a razão social."); return; }
+      if (cnpj.replace(/\D/g, "").length !== 14) { setFormError("O CNPJ precisa ter 14 números."); return; }
+    }
+    if (finalSlug.length < 3) { setFormError("O identificador precisa ter pelo menos 3 caracteres."); return; }
+    setBusy(true);
     try {
       const { error } = joining
-        ? await supabase.rpc("join_company", { _slug: slug })
-        : await supabase.rpc("register_company", { _name: name, _cnpj: cnpj, _slug: slug });
+        ? await supabase.rpc("join_company", { _slug: finalSlug })
+        : await supabase.rpc("register_company", { _name: name, _cnpj: cnpj, _slug: finalSlug });
       if (error) throw error;
-      toast.success("Cadastro enviado para aprovação");
+      toast.success(joining ? "Pedido de acesso enviado" : "Cadastro enviado para aprovação");
       await qc.invalidateQueries({ queryKey: ["companyAccess"] });
-    } catch (e) { toast.error((e as Error).message); } finally { setBusy(false); }
+    } catch (e) {
+      const m = friendlyError((e as Error).message ?? "");
+      setFormError(m); toast.error(m);
+    } finally { setBusy(false); }
   }
   return <section className="mt-8 max-w-lg">
     <h2 className="text-xl font-bold">{joining ? "Entrar na equipe" : "Cadastrar transportadora"}</h2>
-    <form onSubmit={submit} className="mt-5 space-y-4">
-      {!joining && <><div className="space-y-2"><Label htmlFor="company-name">Razão social</Label><Input id="company-name" value={name} onChange={e => setName(e.target.value)} required minLength={3} /></div><div className="space-y-2"><Label htmlFor="company-cnpj">CNPJ</Label><Input id="company-cnpj" value={cnpj} onChange={e => setCnpj(e.target.value)} required inputMode="numeric" /></div></>}
-      <div className="space-y-2"><Label htmlFor="company-slug">Identificador da transportadora</Label><Input id="company-slug" value={slug} onChange={e => setSlug(e.target.value.toLowerCase())} required pattern="[a-z0-9][a-z0-9-]{2,59}" placeholder="minha-transportadora" /></div>
+    <form onSubmit={submit} noValidate className="mt-5 space-y-4">
+      {!joining && <><div className="space-y-2"><Label htmlFor="company-name">Razão social</Label><Input id="company-name" value={name} onChange={e => { setName(e.target.value); if (!slugTouched) setSlug(toSlug(e.target.value)); }} required /></div><div className="space-y-2"><Label htmlFor="company-cnpj">CNPJ</Label><Input id="company-cnpj" value={cnpj} onChange={e => setCnpj(e.target.value)} required inputMode="numeric" placeholder="00.000.000/0000-00" /></div></>}
+      <div className="space-y-2"><Label htmlFor="company-slug">Identificador da transportadora</Label><Input id="company-slug" value={slug} onChange={e => { setSlugTouched(true); setSlug(toSlug(e.target.value)); }} required placeholder="minha-transportadora" /><p className="text-xs text-muted-foreground">{joining ? "Peça esse identificador ao responsável da sua transportadora." : "Nome curto usado pelos seus clientes no rastreio. Só letras minúsculas, números e hífen."}</p></div>
+      {formError && <p role="alert" className="text-sm text-destructive">{formError}</p>}
       <Button disabled={busy} type="submit">{busy ? "Enviando..." : joining ? "Solicitar acesso à equipe" : "Enviar cadastro"}</Button>
     </form>
-    <Button variant="link" className="mt-3 px-0" onClick={() => setJoining(!joining)}>{joining ? "Cadastrar uma nova transportadora" : "Já faço parte de uma transportadora"}</Button>
+    <Button variant="link" className="mt-3 px-0" onClick={() => { setJoining(!joining); setFormError(null); }}>{joining ? "Cadastrar uma nova transportadora" : "Já faço parte de uma transportadora"}</Button>
   </section>;
 }
 
