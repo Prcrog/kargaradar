@@ -28,6 +28,7 @@ export default defineConfig({
         "class-variance-authority",
         "clsx",
         "tailwind-merge",
+        "xlsx",
       ],
     },
   },
