@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { STATUSES, statusLabel } from "@/lib/status";
+import { ImportExcel } from "@/components/ImportExcel";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -65,6 +66,7 @@ function Admin() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-3xl font-bold">Entregas</h1>
           <div className="flex gap-2">
+            {role.data && <ImportExcel />}
             {role.data && <ShipmentForm />}
             <Button variant="outline" onClick={signOut}><LogOut className="mr-2 h-4 w-4" />Sair</Button>
           </div>
