@@ -62,7 +62,7 @@ function Index() {
       </section>
 
       <section className="bg-navy py-16 text-navy-foreground"><div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 md:flex-row md:items-center"><div><h2 className="text-3xl font-bold">Pronto para modernizar seus rastreios?</h2><p className="mt-2 opacity-75">Crie sua conta e cadastre sua transportadora.</p></div><Button asChild size="lg"><Link to="/auth">Criar conta <ArrowRight className="ml-2 h-4 w-4" /></Link></Button></div></section>
-    </article>
+    </div>
   );
 }
 
@@ -80,6 +80,6 @@ function Plan({ name, price, description, features, featured = false }: { name: 
       <p className="mt-6"><span className="text-sm font-semibold">R$</span> <span className="font-display text-4xl font-extrabold">{price}</span><span className="text-sm text-muted-foreground">/mês</span></p>
       <ul className="mt-7 flex-1 space-y-3">{features.map(feature => <li key={feature} className="flex gap-3 text-sm"><Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />{feature}</li>)}</ul>
       <Button asChild className="mt-8" variant={featured ? "default" : "outline"}><Link to="/auth">Escolher {name}</Link></Button>
-    </div>
+    </article>
   );
 }
