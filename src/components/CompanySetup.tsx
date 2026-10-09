@@ -73,13 +73,13 @@ export function PlatformCompanies() {
     const { data, error } = await supabase.from("companies").select("*").order("created_at", { ascending: false });
     if (error) throw error; return data;
   } });
-  async function change(id: string, status: string) {
+  async function changePlan(id: string, plan: string) {
     setBusyId(id);
-    const { error } = await supabase.rpc("set_company_status", { _id: id, _status: status });
+    const { error } = await supabase.rpc("set_company_plan", { _id: id, _plan: plan });
     setBusyId(null);
-    if (error) { toast.error(error.message); return; }
-    toast.success(status === "approved" ? "Transportadora aprovada" : "Transportadora suspensa");
-    qc.invalidateQueries();
+    if (error) { toast.error(error.message.includes("permissão") ? "Sem permissão para alterar o plano." : "Não foi possível alterar o plano."); return; }
+    toast.success("Plano atualizado");
+    qc.invalidateQueries({ queryKey: ["platformCompanies"] });
   }
   return <section className="mt-8 border-t pt-6">
     <h2 className="text-xl font-bold">Administração KargaRadar</h2>
@@ -88,8 +88,18 @@ export function PlatformCompanies() {
     {q.isError && <p className="mt-3 text-destructive">Não foi possível carregar as transportadoras.</p>}
     <div className="mt-3 divide-y">{q.data?.map(c => <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 py-4">
       <div><p className="font-semibold">{c.name}</p><p className="text-sm text-muted-foreground">{c.cnpj || "Cadastro anterior"} · {c.slug}</p></div>
-      <div className="flex items-center gap-3"><Badge variant={c.status === "approved" ? "default" : "secondary"}>{c.status === "approved" ? "Aprovada" : c.status === "pending" ? "Pendente" : "Suspensa"}</Badge>
-      <Button variant="outline" disabled={busyId === c.id} onClick={() => change(c.id, c.status === "approved" ? "suspended" : "approved")}>{c.status === "approved" ? "Suspender" : "Aprovar"}</Button></div>
+      <div className="flex flex-wrap items-center gap-3">
+        <Badge variant={c.status === "approved" ? "default" : "secondary"}>{c.status === "approved" ? "Aprovada" : c.status === "pending" ? "Pendente" : "Suspensa"}</Badge>
+        <Select value={c.plan ?? "basico"} disabled={busyId === c.id} onValueChange={(v) => changePlan(c.id, v)}>
+          <SelectTrigger className="w-40" aria-label={`Plano de ${c.name}`}><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="basico">Básico</SelectItem>
+            <SelectItem value="profissional">Profissional</SelectItem>
+            <SelectItem value="completo">Completo</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button variant="outline" disabled={busyId === c.id} onClick={() => change(c.id, c.status === "approved" ? "suspended" : "approved")}>{c.status === "approved" ? "Suspender" : "Aprovar"}</Button>
+      </div>
     </div>)}</div>
   </section>;
 }
