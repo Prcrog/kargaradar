@@ -62,7 +62,7 @@ function Index() {
       </section>
 
       <section className="bg-navy py-16 text-navy-foreground"><div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 md:flex-row md:items-center"><div><h2 className="text-3xl font-bold">Pronto para modernizar seus rastreios?</h2><p className="mt-2 opacity-75">Crie sua conta e cadastre sua transportadora.</p></div><Button asChild size="lg"><Link to="/auth">Criar conta <ArrowRight className="ml-2 h-4 w-4" /></Link></Button></div></section>
-    </div>
+    </article>
   );
 }
 
