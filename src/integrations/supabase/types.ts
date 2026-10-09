@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          plan: string
           slug: string
           status: string
         }
@@ -28,6 +29,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          plan?: string
           slug: string
           status?: string
         }
@@ -36,6 +38,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          plan?: string
           slug?: string
           status?: string
         }
@@ -217,6 +220,10 @@ export type Database = {
       register_company: {
         Args: { _cnpj: string; _name: string; _slug: string }
         Returns: string
+      }
+      set_company_plan: {
+        Args: { _id: string; _plan: string }
+        Returns: undefined
       }
       set_company_status: {
         Args: { _id: string; _status: string }

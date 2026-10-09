@@ -22,6 +22,13 @@
       "when": 1791551370418,
       "tag": "0002_public_tracking_carrier_blind",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791551735993,
+      "tag": "0003_add_company_plan",
+      "breakpoints": true
     }
   ]
 }
