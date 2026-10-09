@@ -26,7 +26,7 @@ describe("Consulta pública de entregas", () => {
     const out = await lookupShipment({ mode: "nf", number: "123", doc: "123.456.789-09" });
 
     expect(rpc).toHaveBeenCalledWith("track_public_shipment", { _number: "123", _doc: "123.456.789-09" });
-    expect(rpc.mock.calls[0][1]).not.toHaveProperty("_company_slug");
+    expect(rpc.mock.calls[0]?.[1]).not.toHaveProperty("_company_slug");
     expect(out.result?.tracking_code).toBe("GP12345678");
   });
 
