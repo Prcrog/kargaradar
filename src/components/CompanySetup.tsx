@@ -73,6 +73,14 @@ export function PlatformCompanies() {
     const { data, error } = await supabase.from("companies").select("*").order("created_at", { ascending: false });
     if (error) throw error; return data;
   } });
+  async function change(id: string, status: string) {
+    setBusyId(id);
+    const { error } = await supabase.rpc("set_company_status", { _id: id, _status: status });
+    setBusyId(null);
+    if (error) { toast.error(error.message); return; }
+    toast.success(status === "approved" ? "Transportadora aprovada" : "Transportadora suspensa");
+    qc.invalidateQueries({ queryKey: ["platformCompanies"] });
+  }
   async function changePlan(id: string, plan: string) {
     setBusyId(id);
     const { error } = await supabase.rpc("set_company_plan", { _id: id, _plan: plan });
