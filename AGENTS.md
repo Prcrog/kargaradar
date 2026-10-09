@@ -13,3 +13,4 @@
 - Tenant data is scoped by company_roles and companies with database-enforced access; platform_roles only controls company approval, never shipment access, to prevent cross-company exposure.
 - Public tracking must call track_company_shipment with a company slug; the legacy unscoped lookup stays disabled to avoid ambiguous invoices across carriers.
 - Existing carrier records remain assigned to Guanabara Prime and only the oldest existing administrator owns platform approval, preserving data without granting platform access to every carrier.
+- Keep public shipment lookup on its own `/rastrear` route so the home page can explain and sell the service without mixing customer and carrier journeys.

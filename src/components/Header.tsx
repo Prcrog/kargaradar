@@ -13,9 +13,10 @@ export function Header({ dark = false }: { dark?: boolean }) {
             Karga<span className="text-primary">Radar</span>
           </span>
         </Link>
-        <Link to="/admin" className="text-sm font-medium opacity-80 hover:opacity-100">
-          Área da transportadora
-        </Link>
+        <nav className="flex items-center gap-4" aria-label="Navegação principal">
+          <Link to="/rastrear" className="text-sm font-medium opacity-80 hover:opacity-100">Rastrear</Link>
+          <Link to="/admin" className="text-sm font-medium opacity-80 hover:opacity-100">Área da transportadora</Link>
+        </nav>
       </div>
     </header>
   );

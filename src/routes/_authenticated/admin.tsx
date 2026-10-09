@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { LogOut, Plus } from "lucide-react";
+import { LogOut, MessageCircle, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -110,7 +110,7 @@ function Admin() {
                       <td className="p-3 whitespace-nowrap">{new Date(s.created_at).toLocaleDateString("pt-BR")}</td>
                       <td className="p-3 whitespace-nowrap">{s.estimated_delivery ? new Date(s.estimated_delivery + "T12:00").toLocaleDateString("pt-BR") : "—"}</td>
                       <td className="p-3"><Badge variant={s.status === "entregue" ? "default" : s.status === "ocorrencia" ? "destructive" : "secondary"}>{statusLabel(s.status)}</Badge></td>
-                      <td className="p-3 text-right"><UpdateStatus id={s.id} current={s.status} /></td>
+                      <td className="p-3 text-right"><div className="flex justify-end gap-2"><WhatsAppStatus shipment={s} /><UpdateStatus id={s.id} current={s.status} /></div></td>
                     </tr>
                   ))}
                   {rows.length === 0 && <tr><td colSpan={9} className="p-6 text-center text-muted-foreground">Nenhuma entrega.</td></tr>}
@@ -163,6 +163,27 @@ function ShipmentForm() {
 
 function Field({ label, v, on, req, type = "text" }: { label: string; v: string; on: (e: React.ChangeEvent<HTMLInputElement>) => void; req?: boolean; type?: string }) {
   return <div className="space-y-1"><Label>{label}</Label><Input type={type} value={v} onChange={on} required={req} /></div>;
+}
+
+function WhatsAppStatus({ shipment }: { shipment: { tracking_code: string; nfe_number: string | null; customer_name: string; origin: string; destination: string; status: string; estimated_delivery: string | null } }) {
+  const forecast = shipment.estimated_delivery
+    ? new Date(shipment.estimated_delivery + "T12:00").toLocaleDateString("pt-BR")
+    : "a definir";
+  const message = [
+    `Olá, ${shipment.customer_name}!`,
+    `Sua entrega ${shipment.tracking_code}${shipment.nfe_number ? ` (NF ${shipment.nfe_number})` : ""} está com o status: ${statusLabel(shipment.status)}.`,
+    `Rota: ${shipment.origin} → ${shipment.destination}.`,
+    `Previsão de entrega: ${forecast}.`,
+    "Acompanhe também pelo KargaRadar.",
+  ].join("\n");
+
+  return (
+    <Button asChild size="sm" variant="outline" className="border-success/40 text-success" title="Enviar status pelo WhatsApp">
+      <a href={`https://wa.me/?text=${encodeURIComponent(message)}`} target="_blank" rel="noreferrer" aria-label={`Enviar status de ${shipment.tracking_code} pelo WhatsApp`}>
+        <MessageCircle className="h-4 w-4" /><span className="sr-only">WhatsApp</span>
+      </a>
+    </Button>
+  );
 }
 
 function UpdateStatus({ id, current }: { id: string; current: string }) {
