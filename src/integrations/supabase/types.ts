@@ -235,6 +235,10 @@ export type Database = {
         }
         Returns: Json
       }
+      track_public_shipment: {
+        Args: { _doc?: string; _nfe_key?: string; _number?: string }
+        Returns: Json
+      }
       track_shipment: {
         Args: { _doc?: string; _nfe_key?: string; _number?: string }
         Returns: Json

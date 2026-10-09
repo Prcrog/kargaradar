@@ -1,15 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, Calendar, CheckCircle2, Circle, MapPin, Search } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { STEPS, statusLabel } from "@/lib/status";
+import { lookupShipment, type TrackingResult } from "@/lib/tracking";
 import hero from "@/assets/kargaradar-truck.jpg";
 
 export const Route = createFileRoute("/rastrear")({
@@ -26,35 +24,25 @@ export const Route = createFileRoute("/rastrear")({
   component: TrackingPage,
 });
 
-type Result = {
-  tracking_code: string; nfe_number: string | null; customer_name: string;
-  origin: string; destination: string; status: string;
-  estimated_delivery: string | null; updated_at: string;
-  events: { status: string; location: string | null; note: string | null; created_at: string }[];
-};
-
 function TrackingPage() {
-  const [company, setCompany] = useState("");
-  const companies = useQuery({ queryKey: ["trackingCompanies"], queryFn: async () => {
-    const { data, error } = await supabase.rpc("tracking_companies");
-    if (error) throw error; return data;
-  } });
   const [mode, setMode] = useState("nf");
   const [number, setNumber] = useState("");
   const [doc, setDoc] = useState("");
   const [key, setKey] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<Result | null>(null);
+  const [result, setResult] = useState<TrackingResult | null>(null);
   const [error, setError] = useState("");
 
   async function search(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true); setError(""); setResult(null);
-    const args = mode === "chave" ? { _nfe_key: key } : { _number: number, _doc: doc };
-    const { data, error: searchError } = await supabase.rpc("track_company_shipment", { ...args, _company_slug: company });
+    const query = mode === "chave"
+      ? { mode: "chave" as const, key }
+      : { mode: mode as "nf" | "codigo", number, doc };
+    const found = await lookupShipment(query);
     setLoading(false);
-    if (searchError || !data) { setError("Nenhuma entrega encontrada. Confira os dados informados."); return; }
-    setResult(data as unknown as Result);
+    if (found.result) setResult(found.result);
+    else setError(found.error);
   }
 
   return (
@@ -69,7 +57,6 @@ function TrackingPage() {
           <p className="mt-4 max-w-md opacity-80">Consulte em tempo real pela nota fiscal, chave de acesso da NF-e ou código de rastreio.</p>
 
           <form onSubmit={search} className="mt-8 max-w-2xl rounded-lg bg-card p-6 text-card-foreground shadow-2xl">
-            <div className="mb-4 space-y-2"><Label htmlFor="tracking-company">Transportadora</Label><Select required value={company} onValueChange={value => { setCompany(value); setResult(null); setError(""); }}><SelectTrigger id="tracking-company" className="w-full"><SelectValue placeholder={companies.isLoading ? "Carregando..." : "Selecione a transportadora"} /></SelectTrigger><SelectContent>{companies.data?.map(c => <SelectItem key={c.slug} value={c.slug}>{c.name}</SelectItem>)}</SelectContent></Select>{companies.isError && <p className="text-sm text-destructive">Não foi possível carregar as transportadoras.</p>}</div>
             <Tabs value={mode} onValueChange={setMode}>
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="nf">Nº da NF</TabsTrigger>
@@ -99,7 +86,7 @@ function TrackingPage() {
   );
 }
 
-function ResultCard({ r }: { r: Result }) {
+function ResultCard({ r }: { r: TrackingResult }) {
   const idx = STEPS.indexOf(r.status);
   return (
     <div className="rounded-lg border bg-card p-6 shadow-sm">
