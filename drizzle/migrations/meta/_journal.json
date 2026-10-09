@@ -15,6 +15,13 @@
       "when": 1791489533485,
       "tag": "0001_kargaradar_multitenant",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791551370418,
+      "tag": "0002_public_tracking_carrier_blind",
+      "breakpoints": true
     }
   ]
 }
