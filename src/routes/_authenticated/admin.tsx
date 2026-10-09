@@ -17,7 +17,7 @@ import { ImportExcel } from "@/components/ImportExcel";
 import { ExportExcel } from "@/components/ExportExcel";
 import { UsersManager } from "@/components/UsersManager";
 import { CompanySetup, PlatformCompanies } from "@/components/CompanySetup";
-import { canUseCompany } from "@/lib/company";
+import { canUseCompany, planFeatures } from "@/lib/company";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -45,7 +45,7 @@ function Admin() {
       if (error) throw error;
       const { data: platform } = await supabase.rpc("is_platform_admin");
       const { data: company } = member ? await supabase.from("companies").select("*").eq("id", member.company_id).single() : { data: null };
-      return { member, company, platform: Boolean(platform), allowed: canUseCompany({ companyId: member?.company_id ?? null, approved: member?.approved ?? false, status: company?.status ?? null }) };
+      return { member, company, platform: Boolean(platform), features: planFeatures(company?.plan), allowed: canUseCompany({ companyId: member?.company_id ?? null, approved: member?.approved ?? false, status: company?.status ?? null }) };
     },
   });
   const list = useQuery({
@@ -74,8 +74,8 @@ function Admin() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-3xl font-bold">Entregas</h1>
           <div className="flex flex-wrap gap-2">
-            {role.data?.allowed && role.data.member?.role === "owner" && <UsersManager />}
-            {role.data?.allowed && <ImportExcel />}
+            {role.data?.allowed && role.data.member?.role === "owner" && role.data.features.team && <UsersManager />}
+            {role.data?.allowed && role.data.features.excel && <ImportExcel />}
             {role.data?.allowed && <ShipmentForm />}
             <Button variant="outline" onClick={signOut}><LogOut className="mr-2 h-4 w-4" />Sair</Button>
           </div>
@@ -92,7 +92,7 @@ function Admin() {
           <>
             <div className="mt-6 flex flex-wrap items-center gap-2">
               <Input className="max-w-sm" placeholder="Buscar por NF, código, cliente, CPF/CNPJ..." value={filter} onChange={(e) => setFilter(e.target.value)} />
-              <ExportExcel rows={rows} filter={filter} />
+              {role.data?.features.excel && <ExportExcel rows={rows} filter={filter} />}
             </div>
             <div className="mt-4 overflow-x-auto rounded-xl border bg-card">
               <table className="w-full text-sm">
@@ -110,7 +110,7 @@ function Admin() {
                       <td className="p-3 whitespace-nowrap">{new Date(s.created_at).toLocaleDateString("pt-BR")}</td>
                       <td className="p-3 whitespace-nowrap">{s.estimated_delivery ? new Date(s.estimated_delivery + "T12:00").toLocaleDateString("pt-BR") : "—"}</td>
                       <td className="p-3"><Badge variant={s.status === "entregue" ? "default" : s.status === "ocorrencia" ? "destructive" : "secondary"}>{statusLabel(s.status)}</Badge></td>
-                      <td className="p-3 text-right"><div className="flex justify-end gap-2"><WhatsAppStatus shipment={s} /><UpdateStatus id={s.id} current={s.status} /></div></td>
+                      <td className="p-3 text-right"><div className="flex justify-end gap-2">{role.data?.features.whatsapp && <WhatsAppStatus shipment={s} />}<UpdateStatus id={s.id} current={s.status} /></div></td>
                     </tr>
                   ))}
                   {rows.length === 0 && <tr><td colSpan={9} className="p-6 text-center text-muted-foreground">Nenhuma entrega.</td></tr>}
