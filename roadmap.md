@@ -1,7 +1,7 @@
 # KargaRadar
-- [ ] Transformar a página inicial em apresentação comercial com funcionamento e planos.
-- [ ] Mover a consulta pública para uma página própria de rastreamento.
-- [ ] Adicionar envio de status pelo WhatsApp na lista de entregas.
+- [x] Transformar a página inicial em apresentação comercial com funcionamento e planos.
+- [x] Mover a consulta pública para uma página própria de rastreamento.
+- [x] Adicionar envio de status pelo WhatsApp na lista de entregas.
 - [x] Separar empresas, equipes e entregas; preservar dados existentes.
 - [x] Cadastro de empresa e aprovação pelo administrador da plataforma.
 - [x] Atualizar marca e rastreamento por transportadora.
