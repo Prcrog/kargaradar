@@ -45,7 +45,7 @@ function Admin() {
       if (error) throw error;
       const { data: platform } = await supabase.rpc("is_platform_admin");
       const { data: company } = member ? await supabase.from("companies").select("*").eq("id", member.company_id).single() : { data: null };
-      return { member, company, platform: Boolean(platform), features: planFeatures(company?.plan), allowed: canUseCompany({ companyId: member?.company_id ?? null, approved: member?.approved ?? false, status: company?.status ?? null }) };
+      return { member, company, platform: Boolean(platform), features: planFeatures("completo"), allowed: canUseCompany({ companyId: member?.company_id ?? null, approved: member?.approved ?? false, status: company?.status ?? null }) };
     },
   });
   const list = useQuery({
