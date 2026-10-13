@@ -98,14 +98,6 @@ export function PlatformCompanies() {
       <div><p className="font-semibold">{c.name}</p><p className="text-sm text-muted-foreground">{c.cnpj || "Cadastro anterior"} · {c.slug}</p></div>
       <div className="flex flex-wrap items-center gap-3">
         <Badge variant={c.status === "approved" ? "default" : "secondary"}>{c.status === "approved" ? "Aprovada" : c.status === "pending" ? "Pendente" : "Suspensa"}</Badge>
-        <Select value={c.plan ?? "basico"} disabled={busyId === c.id} onValueChange={(v) => changePlan(c.id, v)}>
-          <SelectTrigger className="w-40" aria-label={`Plano de ${c.name}`}><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="basico">Básico</SelectItem>
-            <SelectItem value="profissional">Profissional</SelectItem>
-            <SelectItem value="completo">Completo</SelectItem>
-          </SelectContent>
-        </Select>
         <Button variant="outline" disabled={busyId === c.id} onClick={() => change(c.id, c.status === "approved" ? "suspended" : "approved")}>{c.status === "approved" ? "Suspender" : "Aprovar"}</Button>
       </div>
     </div>)}</div>
