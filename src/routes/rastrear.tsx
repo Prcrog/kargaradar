@@ -38,7 +38,7 @@ function TrackingPage() {
     setLoading(true); setError(""); setResult(null);
     const query = mode === "chave"
       ? { mode: "chave" as const, key }
-      : { mode: mode as "nf" | "codigo", number, doc };
+      : { mode: (mode === "nf" ? "nf" : "codigo") as "nf" | "codigo", number, doc };
     const found = await lookupShipment(query);
     setLoading(false);
     if (found.result) setResult(found.result);
@@ -58,8 +58,9 @@ function TrackingPage() {
 
           <form onSubmit={search} className="mt-8 max-w-2xl rounded-lg bg-card p-6 text-card-foreground shadow-2xl">
             <Tabs value={mode} onValueChange={setMode}>
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="nf">Nº da NF</TabsTrigger>
+                <TabsTrigger value="cte">CT-e</TabsTrigger>
                 <TabsTrigger value="chave">Chave NF-e</TabsTrigger>
                 <TabsTrigger value="codigo">Cód. rastreio</TabsTrigger>
               </TabsList>
@@ -69,7 +70,7 @@ function TrackingPage() {
               </TabsContent>
               {mode !== "chave" && (
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2"><Label htmlFor="num">{mode === "nf" ? "Número da nota fiscal" : "Código de rastreio"}</Label><Input id="num" value={number} onChange={(e) => setNumber(e.target.value)} placeholder={mode === "nf" ? "Ex: 123" : "Ex: GP12345678"} /></div>
+                  <div className="space-y-2"><Label htmlFor="num">{mode === "nf" ? "Número da nota fiscal" : mode === "cte" ? "Número do CT-e" : "Código de rastreio"}</Label><Input id="num" value={number} onChange={(e) => setNumber(e.target.value)} placeholder={mode === "codigo" ? "Ex: GP12345678" : "Ex: 123"} /></div>
                   <div className="space-y-2"><Label htmlFor="doc">CPF ou CNPJ do destinatário</Label><Input id="doc" value={doc} onChange={(e) => setDoc(e.target.value)} placeholder="000.000.000-00" /></div>
                 </div>
               )}

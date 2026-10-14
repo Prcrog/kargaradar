@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { LogOut, MessageCircle, Plus } from "lucide-react";
+import { LogOut, MessageCircle, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -110,7 +110,7 @@ function Admin() {
                       <td className="p-3 whitespace-nowrap">{new Date(s.created_at).toLocaleDateString("pt-BR")}</td>
                       <td className="p-3 whitespace-nowrap">{s.estimated_delivery ? new Date(s.estimated_delivery + "T12:00").toLocaleDateString("pt-BR") : "—"}</td>
                       <td className="p-3"><Badge variant={s.status === "entregue" ? "default" : s.status === "ocorrencia" ? "destructive" : "secondary"}>{statusLabel(s.status)}</Badge></td>
-                      <td className="p-3 text-right"><div className="flex justify-end gap-2">{role.data?.features.whatsapp && <WhatsAppStatus shipment={s} />}<UpdateStatus id={s.id} current={s.status} /></div></td>
+                      <td className="p-3 text-right"><div className="flex justify-end gap-2">{role.data?.features.whatsapp && <WhatsAppStatus shipment={s} />}<UpdateStatus id={s.id} current={s.status} /><DeleteShipment id={s.id} code={s.tracking_code} /></div></td>
                     </tr>
                   ))}
                   {rows.length === 0 && <tr><td colSpan={9} className="p-6 text-center text-muted-foreground">Nenhuma entrega.</td></tr>}
@@ -182,6 +182,23 @@ function WhatsAppStatus({ shipment }: { shipment: { tracking_code: string; nfe_n
       <a href={`https://wa.me/?text=${encodeURIComponent(message)}`} target="_blank" rel="noreferrer" aria-label={`Enviar status de ${shipment.tracking_code} pelo WhatsApp`}>
         <MessageCircle className="h-4 w-4" /><span className="sr-only">WhatsApp</span>
       </a>
+    </Button>
+  );
+}
+
+function DeleteShipment({ id, code }: { id: string; code: string }) {
+  const qc = useQueryClient();
+  async function remove() {
+    if (!window.confirm(`Excluir a entrega ${code}? Esta ação não pode ser desfeita.`)) return;
+    await supabase.from("shipment_events").delete().eq("shipment_id", id);
+    const { error } = await supabase.from("shipments").delete().eq("id", id);
+    if (error) { toast.error("Erro ao excluir"); return; }
+    toast.success("Entrega excluída");
+    qc.invalidateQueries({ queryKey: ["shipments"] });
+  }
+  return (
+    <Button size="sm" variant="outline" className="text-destructive" onClick={remove} title="Excluir entrega" aria-label={`Excluir entrega ${code}`}>
+      <Trash2 className="h-4 w-4" />
     </Button>
   );
 }
