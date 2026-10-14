@@ -65,7 +65,7 @@ function Admin() {
   }
 
   const rows = (list.data ?? []).filter((s) =>
-    [s.tracking_code, s.nfe_number, s.nfe_key, s.customer_name, s.customer_doc].join(" ").toLowerCase().includes(filter.toLowerCase()));
+    [s.tracking_code, s.cte, s.nfe_number, s.nfe_key, s.customer_name, s.customer_doc].join(" ").toLowerCase().includes(filter.toLowerCase()));
 
   return (
     <div className="min-h-screen">
@@ -91,19 +91,19 @@ function Admin() {
         {role.data?.allowed && (
           <>
             <div className="mt-6 flex flex-wrap items-center gap-2">
-              <Input className="max-w-sm" placeholder="Buscar por NF, código, cliente, CPF/CNPJ..." value={filter} onChange={(e) => setFilter(e.target.value)} />
+              <Input className="max-w-sm" placeholder="Buscar por NF, CT-e, código, cliente, CPF/CNPJ..." value={filter} onChange={(e) => setFilter(e.target.value)} />
               {role.data?.features.excel && <ExportExcel rows={rows} filter={filter} />}
             </div>
             <div className="mt-4 overflow-x-auto rounded-xl border bg-card">
               <table className="w-full text-sm">
                 <thead className="bg-muted text-left text-muted-foreground">
-                  <tr><th className="p-3">Código</th><th className="p-3">NF</th><th className="p-3">Chave NF-e</th><th className="p-3">Cliente</th><th className="p-3">Rota</th><th className="p-3">Inclusão</th><th className="p-3">Previsão</th><th className="p-3">Status</th><th className="p-3"></th></tr>
+                  <tr><th className="p-3">Código</th><th className="p-3">CT-e</th><th className="p-3">NF</th><th className="p-3">Chave NF-e</th><th className="p-3">Cliente</th><th className="p-3">Rota</th><th className="p-3">Inclusão</th><th className="p-3">Previsão</th><th className="p-3">Status</th><th className="p-3"></th></tr>
                 </thead>
                 <tbody>
                   {rows.map((s) => (
                     <tr key={s.id} className="border-t">
                       <td className="p-3 font-mono">{s.tracking_code}</td>
-                      <td className="p-3">{s.nfe_number}</td>
+                      <td className="p-3">{s.cte || "—"}</td><td className="p-3">{s.nfe_number}</td>
                       <td className="p-3 font-mono text-xs break-all min-w-[180px]">{s.nfe_key || "—"}</td>
                       <td className="p-3">{s.customer_name}<div className="text-xs text-muted-foreground">{s.customer_doc}</div></td>
                       <td className="p-3">{s.origin} → {s.destination}</td>
@@ -113,7 +113,7 @@ function Admin() {
                       <td className="p-3 text-right"><div className="flex justify-end gap-2">{role.data?.features.whatsapp && <WhatsAppStatus shipment={s} />}<UpdateStatus id={s.id} current={s.status} /><DeleteShipment id={s.id} code={s.tracking_code} /></div></td>
                     </tr>
                   ))}
-                  {rows.length === 0 && <tr><td colSpan={9} className="p-6 text-center text-muted-foreground">Nenhuma entrega.</td></tr>}
+                  {rows.length === 0 && <tr><td colSpan={10} className="p-6 text-center text-muted-foreground">Nenhuma entrega.</td></tr>}
                 </tbody>
               </table>
             </div>
