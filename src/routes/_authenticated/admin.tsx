@@ -175,7 +175,7 @@ function WhatsAppStatus({ shipment }: { shipment: { tracking_code: string; nfe_n
     `Sua entrega ${shipment.tracking_code}${shipment.nfe_number ? ` (NF ${shipment.nfe_number})` : ""} está com o status: ${statusLabel(shipment.status)}.`,
     `Rota: ${shipment.origin} → ${shipment.destination}.`,
     `Previsão de entrega: ${forecast}.`,
-    "Acompanhe também pelo KargaRadar.",
+    "Acompanhe também pelo https://kargaradar.lovable.app.",
   ].join("\n");
 
   return (
