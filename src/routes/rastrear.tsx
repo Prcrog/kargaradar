@@ -54,7 +54,7 @@ function TrackingPage() {
         <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-32 text-navy-foreground">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Rastreamento</p>
           <h1 className="mt-3 max-w-xl text-4xl font-extrabold md:text-6xl">A ansiedade tá grande? A gente entende.</h1>
-          <p className="mt-4 max-w-md opacity-80">Faça a consulta rápida pela NF-e, CT-e, Chave da NF-e e código de rastreio.</p>
+          <p className="mt-4 max-w-md opacity-80">Faça a consulta rápida pela NF-e, CT-e, Chave da NF-e, Código de rastreio.</p>
 
           <form onSubmit={search} className="mt-8 max-w-2xl rounded-lg bg-card p-6 text-card-foreground shadow-2xl">
             <Tabs value={mode} onValueChange={setMode}>
