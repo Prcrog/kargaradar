@@ -40,14 +40,16 @@ export function ImportExcel() {
       const data = rows
         .filter((r) => r.some((c) => str(c) !== ""))
         .filter((r) => !/cpf|cnpj/i.test(str(r[0]))) // pula cabeçalho
+        // A CPF/CNPJ · B Nome · C CTE · D NF · E Chave · F Origem · G Destino · H Entrega
         .map((r) => ({
           customer_doc: str(r[0]),
-          nfe_number: str(r[1]) || null,
-          nfe_key: str(r[2]).replace(/\D/g, "") || null,
-          origin: str(r[3]),
-          destination: str(r[4]),
-          estimated_delivery: toDate(r[5]),
-          customer_name: "Cliente",
+          customer_name: str(r[1]) || "Cliente",
+          cte: str(r[2]) || null,
+          nfe_number: str(r[3]) || null,
+          nfe_key: str(r[4]).replace(/\D/g, "") || null,
+          origin: str(r[5]),
+          destination: str(r[6]),
+          estimated_delivery: toDate(r[7]),
         }))
         .filter((r) => r.customer_doc && r.origin && r.destination);
 
@@ -70,7 +72,7 @@ export function ImportExcel() {
   return (
     <>
       <input ref={ref} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={onFile} />
-      <Button variant="secondary" disabled={busy} onClick={() => ref.current?.click()} title="Colunas: A CPF/CNPJ · B Nº NF · C Chave · D Origem · E Destino · F Previsão">
+      <Button variant="secondary" disabled={busy} onClick={() => ref.current?.click()} title="Colunas: CPF/CNPJ · Nome do cliente · CTE · NF · Chave NF-e · Origem · Destino · Entrega">
         <FileSpreadsheet className="mr-2 h-4 w-4" />{busy ? "Importando..." : "Importar Excel"}
       </Button>
     </>
