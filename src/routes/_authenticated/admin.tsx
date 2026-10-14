@@ -128,7 +128,7 @@ function Admin() {
 function ShipmentForm() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [f, setF] = useState({ nfe_number: "", nfe_key: "", customer_name: "", customer_doc: "", origin: "", destination: "", estimated_delivery: "" });
+  const [f, setF] = useState({ nfe_number: "", cte: "", nfe_key: "", customer_name: "", customer_doc: "", origin: "", destination: "", estimated_delivery: "" });
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
 
   async function save(e: React.FormEvent) {
@@ -148,6 +148,7 @@ function ShipmentForm() {
         <DialogHeader><DialogTitle>Nova entrega</DialogTitle></DialogHeader>
         <form onSubmit={save} className="grid gap-3 sm:grid-cols-2">
           <Field label="Nº da NF" v={f.nfe_number} on={set("nfe_number")} />
+          <Field label="Nº do CT-e" v={f.cte} on={set("cte")} />
           <Field label="CPF/CNPJ destinatário *" v={f.customer_doc} on={set("customer_doc")} req />
           <div className="sm:col-span-2"><Field label="Chave NF-e (44 dígitos)" v={f.nfe_key} on={set("nfe_key")} /></div>
           <div className="sm:col-span-2"><Field label="Nome do destinatário *" v={f.customer_name} on={set("customer_name")} req /></div>
