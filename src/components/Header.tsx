@@ -15,14 +15,14 @@ export function Header({ dark = false }: { dark?: boolean }) {
               Karga<span className="text-primary">Radar</span>
             </span>
           </span>
-          <span className="flex items-center gap-1.5 pl-11">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-70">by</span>
+          <span className="flex items-center gap-2 pl-11">
+            <span className="text-xs font-medium lowercase opacity-70">by</span>
             <img
               src={procionLogo.url}
               alt="Prócion Sistemas"
               width={486}
               height={125}
-              className="h-[18px] w-auto rounded-sm bg-white px-1.5 py-0.5"
+              className="h-7 w-auto rounded-md bg-white px-2 py-1"
             />
           </span>
         </Link>
