@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import { Radar } from "lucide-react";
-import procionLogo from "@/assets/procion-sistemas.png.asset.json";
 
 export function Header({ dark = false }: { dark?: boolean }) {
   return (
@@ -14,16 +13,6 @@ export function Header({ dark = false }: { dark?: boolean }) {
             <span className="font-display text-lg font-extrabold leading-none tracking-tight">
               Karga<span className="text-primary">Radar</span>
             </span>
-          </span>
-          <span className="flex items-center gap-2 pl-11">
-            <span className="text-xs font-medium lowercase opacity-70">by</span>
-            <img
-              src={procionLogo.url}
-              alt="Prócion Sistemas"
-              width={486}
-              height={125}
-              className="h-7 w-auto rounded-full bg-white px-3 py-1 shadow-sm"
-            />
           </span>
         </Link>
         <nav className="flex items-center gap-4" aria-label="Navegação principal">

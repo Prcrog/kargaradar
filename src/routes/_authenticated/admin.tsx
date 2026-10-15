@@ -70,7 +70,7 @@ function Admin() {
   return (
     <div className="min-h-screen">
       <Header />
-      <main className="mx-auto w-full max-w-[98%] px-4 py-10">
+      <main className="mx-auto w-full max-w-[98%] px-4 pt-10 pb-28">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-3xl font-bold">Entregas</h1>
           <div className="flex flex-wrap gap-2">
