@@ -19,8 +19,7 @@ export const Route = createFileRoute("/")({
     return (
       <div className="relative">
         <C />
-        <ProcionBadge />
-      </div>
+              </div>
     );
   },
 
