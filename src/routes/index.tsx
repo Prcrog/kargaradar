@@ -14,10 +14,13 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-    component: () => {
+  component: () => {
     const C = TrackingRoute.options.component!;
-    return <C />;
-  },
+    return (
+      <div className="relative">
+        <C />
+        <ProcionBadge />
+              </div>
     );
   },
 
