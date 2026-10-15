@@ -71,7 +71,13 @@ function TrackingPage() {
               {mode !== "chave" && (
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2"><Label htmlFor="num">{mode === "nf" ? "Número da nota fiscal" : mode === "cte" ? "Número do CT-e" : "Código de rastreio"}</Label><Input id="num" value={number} onChange={(e) => setNumber(e.target.value)} placeholder={mode === "codigo" ? "Ex: GP12345678" : "Ex: 123"} /></div>
-                  <div className="space-y-2"><Label htmlFor="doc">CNPJ ou CPF do destinatário</Label><Input id="doc" value={doc} onChange={(e) => setDoc(e.target.value)} placeholder="000.000.000-00" /></div>
+                  <div className="space-y-2"><Label htmlFor="doc">CNPJ ou CPF do destinatário</Label><Input 
+  id="doc" 
+  value={doc} 
+  onChange={(e) => setDoc(maskCpfCnpj(e.target.value))} 
+  placeholder="CPF ou CNPJ" 
+/>
+</div>
                 </div>
               )}
             </Tabs>
