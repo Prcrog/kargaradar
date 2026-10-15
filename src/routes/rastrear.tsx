@@ -92,8 +92,7 @@ function TrackingPage() {
             <Button type="submit" size="lg" className="mt-5 w-full font-semibold" disabled={loading}><Search className="mr-2 h-4 w-4" /> {loading ? "Buscando..." : "Rastrear entrega"}</Button>
           </form>
         </div>
-        <ProcionBadge />
-      </section>
+              </section>
       <main className="mx-auto max-w-3xl px-6 pt-12 pb-28">
         {error && <div className="flex items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive"><AlertTriangle className="h-5 w-5" /> {error}</div>}
         {result && <ResultCard r={result} />}
