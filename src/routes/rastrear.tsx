@@ -75,7 +75,7 @@ function TrackingPage() {
   id="doc" 
   value={doc} 
   onChange={(e) => setDoc(maskCpfCnpj(e.target.value))} 
-  placeholder="CPF ou CNPJ" 
+  placeholder="00.000.000/0000-00" 
 />
 </div>
                 </div>
