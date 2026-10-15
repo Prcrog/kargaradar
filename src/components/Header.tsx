@@ -22,7 +22,7 @@ export function Header({ dark = false }: { dark?: boolean }) {
               alt="Prócion Sistemas"
               width={486}
               height={125}
-              className="h-7 w-auto rounded-md bg-white px-2 py-1"
+              className="h-7 w-auto rounded-full bg-white px-3 py-1 shadow-sm"
             />
           </span>
         </Link>
