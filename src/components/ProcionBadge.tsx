@@ -8,7 +8,7 @@ export function ProcionBadge() {
       rel="noopener noreferrer"
       aria-label="Prócion Sistemas — www.procion.com"
       title="Prócion Sistemas"
-      className="absolute bottom-[180px] right-4 z-50 inline-flex items-center rounded-full bg-white/95 px-4 py-2 shadow-lg ring-1 ring-black/5 transition hover:bg-white hover:shadow-xl"
+      className="absolute bottom-[160px] right-4 z-50 inline-flex items-center rounded-full bg-white/95 px-4 py-2 shadow-lg ring-1 ring-black/5 transition hover:bg-white hover:shadow-xl"
 
 
     >
