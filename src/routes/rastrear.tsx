@@ -93,7 +93,7 @@ function TrackingPage() {
           </form>
         </div>
       </section>
-      <main className="mx-auto max-w-3xl px-6 py-12">
+      <main className="mx-auto max-w-3xl px-6 pt-12 pb-28">
         {error && <div className="flex items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive"><AlertTriangle className="h-5 w-5" /> {error}</div>}
         {result && <ResultCard r={result} />}
       </main>
