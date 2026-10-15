@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ProcionBadge } from "@/components/ProcionBadge";
 import { Route as TrackingRoute } from "./rastrear";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -14,6 +16,12 @@ export const Route = createFileRoute("/")({
   }),
   component: () => {
     const C = TrackingRoute.options.component!;
-    return <C />;
+    return (
+      <div className="relative">
+        <C />
+        <ProcionBadge />
+      </div>
+    );
   },
+
 });
