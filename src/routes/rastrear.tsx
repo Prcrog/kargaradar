@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { STEPS, statusLabel } from "@/lib/status";
+import { maskCpfCnpj } from "@/lib/utils";
 import { lookupShipment, type TrackingResult } from "@/lib/tracking";
 import hero from "@/assets/kargaradar-truck.jpg";
 
@@ -70,14 +71,21 @@ function TrackingPage() {
               </TabsContent>
               {mode !== "chave" && (
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2"><Label htmlFor="num">{mode === "nf" ? "Número da nota fiscal" : mode === "cte" ? "Número do CT-e" : "Código de rastreio"}</Label><Input id="num" value={number} onChange={(e) => setNumber(e.target.value)} placeholder={mode === "codigo" ? "Ex: GP12345678" : "Ex: 123"} /></div>
-                  <div className="space-y-2"><Label htmlFor="doc">CNPJ ou CPF do destinatário</Label><Input 
-  id="doc" 
-  value={doc} 
-  onChange={(e) => setDoc(maskCpfCnpj(e.target.value))} 
-  placeholder="00.000.000/0000-00" 
-/>
-</div>
+                  <div className="space-y-2">
+                    <Label htmlFor="num">{mode === "nf" ? "Número da nota fiscal" : mode === "cte" ? "Número do CT-e" : "Código de rastreio"}</Label>
+                    <Input id="num" value={number} onChange={(e) => setNumber(e.target.value)} placeholder={mode === "codigo" ? "Ex: GP12345678" : "Ex: 123"} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="doc">CNPJ ou CPF do destinatário</Label>
+                    <Input
+                      id="doc"
+                      value={doc}
+                      onChange={(e) => setDoc(maskCpfCnpj(e.target.value))}
+                      placeholder="00.000.000/0000-00"
+                      inputMode="numeric"
+                      autoComplete="off"
+                    />
+                  </div>
                 </div>
               )}
             </Tabs>
