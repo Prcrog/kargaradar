@@ -15,11 +15,11 @@ export function UsersManager({ companyId, label }: { companyId?: string; label?:
   const update = useServerFn(setAdmin);
   const remove = useServerFn(deleteMember);
   const key = ["users", companyId ?? "self"];
-  const q = useQuery({ queryKey: key, queryFn: () => list({ data: { companyId } }), enabled: open });
+  const q = useQuery({ queryKey: key, queryFn: () => list({ data: companyId ? { companyId } : {} }), enabled: open });
 
   async function toggle(userId: string, admin: boolean) {
     try {
-      await update({ data: { userId, admin, companyId } });
+      await update({ data: companyId ? { userId, admin, companyId } : { userId, admin } });
       toast.success(admin ? "Acesso liberado" : "Usuário bloqueado");
       qc.invalidateQueries({ queryKey: key });
     } catch (e) { toast.error((e as Error).message); return; }
@@ -28,7 +28,7 @@ export function UsersManager({ companyId, label }: { companyId?: string; label?:
   async function excluir(userId: string, email: string) {
     if (!window.confirm(`Excluir o acesso de ${email}? Esta ação não pode ser desfeita.`)) return;
     try {
-      await remove({ data: { userId, companyId } });
+      await remove({ data: companyId ? { userId, companyId } : { userId } });
       toast.success("Usuário excluído");
       qc.invalidateQueries({ queryKey: key });
     } catch (e) { toast.error((e as Error).message); return; }
