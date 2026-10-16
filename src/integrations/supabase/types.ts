@@ -210,6 +210,11 @@ export type Database = {
     Functions: {
       can_manage_company: { Args: { _company_id: string }; Returns: boolean }
       current_company_id: { Args: never; Returns: string }
+      delete_company: { Args: { _id: string }; Returns: undefined }
+      delete_member: {
+        Args: { _company_id: string; _user_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -232,10 +237,12 @@ export type Database = {
         Args: { _id: string; _status: string }
         Returns: undefined
       }
-      set_member_access: {
-        Args: { _approved: boolean; _user_id: string }
-        Returns: undefined
-      }
+      set_member_access:
+        | { Args: { _approved: boolean; _user_id: string }; Returns: undefined }
+        | {
+            Args: { _approved: boolean; _company_id: string; _user_id: string }
+            Returns: undefined
+          }
       track_company_shipment: {
         Args: {
           _company_slug: string

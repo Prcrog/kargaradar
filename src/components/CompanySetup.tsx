@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UsersManager } from "@/components/UsersManager";
+import { deleteCompany as deleteCompanyFn } from "@/lib/users.functions";
 
-const PLAN_LABELS: Record<string, string> = { basico: "Básico", profissional: "Profissional", completo: "Completo" };
 
 function toSlug(v: string) {
   return v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
@@ -69,6 +71,7 @@ export function CompanySetup() {
 export function PlatformCompanies() {
   const qc = useQueryClient();
   const [busyId, setBusyId] = useState<string | null>(null);
+  const removeCompany = useServerFn(deleteCompanyFn);
   const q = useQuery({ queryKey: ["platformCompanies"], queryFn: async () => {
     const { data, error } = await supabase.from("companies").select("*").order("created_at", { ascending: false });
     if (error) throw error; return data;
@@ -78,16 +81,15 @@ export function PlatformCompanies() {
     const { error } = await supabase.rpc("set_company_status", { _id: id, _status: status });
     setBusyId(null);
     if (error) { toast.error(error.message); return; }
-    toast.success(status === "approved" ? "Transportadora aprovada" : "Transportadora suspensa");
+    toast.success(status === "approved" ? "Transportadora liberada" : "Transportadora bloqueada");
     qc.invalidateQueries({ queryKey: ["platformCompanies"] });
   }
-  async function changePlan(id: string, plan: string) {
+  async function excluir(id: string, name: string) {
+    if (!window.confirm(`Excluir a transportadora ${name} e todos os seus dados? Esta ação não pode ser desfeita.`)) return;
     setBusyId(id);
-    const { error } = await supabase.rpc("set_company_plan", { _id: id, _plan: plan });
-    setBusyId(null);
-    if (error) { toast.error(error.message.includes("permissão") ? "Sem permissão para alterar o plano." : "Não foi possível alterar o plano."); return; }
-    toast.success("Plano atualizado");
-    qc.invalidateQueries({ queryKey: ["platformCompanies"] });
+    try { await removeCompany({ data: { companyId: id } }); toast.success("Transportadora excluída"); qc.invalidateQueries({ queryKey: ["platformCompanies"] }); }
+    catch (e) { toast.error((e as Error).message); }
+    finally { setBusyId(null); }
   }
   return <section className="mt-8 border-t pt-6">
     <h2 className="text-xl font-bold">Administração KargaRadar</h2>
@@ -96,9 +98,13 @@ export function PlatformCompanies() {
     {q.isError && <p className="mt-3 text-destructive">Não foi possível carregar as transportadoras.</p>}
     <div className="mt-3 divide-y">{q.data?.map(c => <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 py-4">
       <div><p className="font-semibold">{c.name}</p><p className="text-sm text-muted-foreground">{c.cnpj || "Cadastro anterior"} · {c.slug}</p></div>
-      <div className="flex flex-wrap items-center gap-3">
-        <Badge variant={c.status === "approved" ? "default" : "secondary"}>{c.status === "approved" ? "Aprovada" : c.status === "pending" ? "Pendente" : "Suspensa"}</Badge>
-        <Button variant="outline" disabled={busyId === c.id} onClick={() => change(c.id, c.status === "approved" ? "suspended" : "approved")}>{c.status === "approved" ? "Suspender" : "Aprovar"}</Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant={c.status === "approved" ? "default" : c.status === "suspended" ? "destructive" : "secondary"}>{c.status === "approved" ? "Liberada" : c.status === "pending" ? "Pendente" : "Bloqueada"}</Badge>
+        <UsersManager companyId={c.id} label="Usuários" />
+        <Button variant="outline" disabled={busyId === c.id} onClick={() => change(c.id, c.status === "approved" ? "suspended" : "approved")}>{c.status === "approved" ? "Bloquear" : "Liberar"}</Button>
+        <Button variant="outline" className="text-destructive" disabled={busyId === c.id} onClick={() => excluir(c.id, c.name)} title="Excluir transportadora" aria-label={`Excluir ${c.name}`}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     </div>)}</div>
   </section>;
