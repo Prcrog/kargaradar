@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { UsersManager } from "@/components/UsersManager";
 import { deleteCompany as deleteCompanyFn } from "@/lib/users.functions";
 
-const PLAN_LABELS: Record<string, string> = { basico: "Básico", profissional: "Profissional", completo: "Completo" };
 
 function toSlug(v: string) {
   return v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
