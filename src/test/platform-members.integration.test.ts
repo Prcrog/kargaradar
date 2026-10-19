@@ -2,9 +2,9 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 // Run with a locally minted platform-admin session; never print session contents.
-const sessionPath = process.env.MEMBER_TEST_SESSION_FILE;
-const url = process.env.SUPABASE_URL;
-const key = process.env.SUPABASE_PUBLISHABLE_KEY;
+const sessionPath = process.env['MEMBER_TEST_SESSION_FILE'];
+const url = process.env['SUPABASE_URL'];
+const key = process.env['SUPABASE_PUBLISHABLE_KEY'];
 
 describe.skipIf(!sessionPath || !url || !key)("Platform administrator team visibility", () => {
   const companyId = "50ded111-f709-496a-9f31-fd0e5e93541d";
@@ -15,7 +15,7 @@ describe.skipIf(!sessionPath || !url || !key)("Platform administrator team visib
     const headers: Record<string, string> = { apikey: key };
     if (authenticated) {
       const { session } = JSON.parse(readFileSync(sessionPath, "utf8"));
-      headers.Authorization = `Bearer ${session.access_token}`;
+      headers['Authorization'] = `Bearer ${session.access_token}`;
     }
     return fetch(`${url}/rest/v1/company_roles?select=user_id,company_id,role&company_id=eq.${companyId}`, { headers });
   }
