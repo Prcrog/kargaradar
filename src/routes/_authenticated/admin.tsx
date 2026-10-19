@@ -26,6 +26,8 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { name: "description", content: "Cadastre e atualize entregas." },
       { property: "og:title", content: "Painel de entregas — KargaRadar" },
       { property: "og:description", content: "Cadastre e atualize entregas." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Admin,
