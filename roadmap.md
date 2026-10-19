@@ -1,5 +1,5 @@
 # KargaRadar
-- [ ] Corrigir e validar a visualização dos usuários de cada empresa pelo administrador KargaRadar.
+- [x] Corrigir e validar a visualização dos usuários de cada empresa pelo administrador KargaRadar.
 - [x] Transformar a página inicial em apresentação comercial com funcionamento e planos.
 - [x] Mover a consulta pública para uma página própria de rastreamento.
 - [x] Adicionar envio de status pelo WhatsApp na lista de entregas.
