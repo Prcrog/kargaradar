@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Users, Trash2, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { listUsers, setAdmin, deleteMember, createMember } from "@/lib/users.functions";
+import { listUsers, setAdmin, deleteMember, createMember } from "@/lib/users";
 
 export function UsersManager({ companyId, label }: { companyId?: string; label?: string } = {}) {
   const [open, setOpen] = useState(false);
@@ -16,19 +15,15 @@ export function UsersManager({ companyId, label }: { companyId?: string; label?:
   const [password, setPassword] = useState("");
   const [creating, setCreating] = useState(false);
   const qc = useQueryClient();
-  const list = useServerFn(listUsers);
-  const update = useServerFn(setAdmin);
-  const remove = useServerFn(deleteMember);
-  const create = useServerFn(createMember);
   const key = ["users", companyId ?? "self"];
-  const q = useQuery({ queryKey: key, queryFn: () => list({ data: companyId ? { companyId } : {} }), enabled: open });
+  const q = useQuery({ queryKey: key, queryFn: () => listUsers({ companyId }), enabled: open });
 
   async function criar(e: React.FormEvent) {
     e.preventDefault();
     setCreating(true);
     try {
-      await create({ data: { email, password, ...(companyId ? { companyId } : {}) } });
-      toast.success("Usuário cadastrado e liberado");
+      const result = await createMember({ email, password, companyId });
+      toast.success(result.existing ? "Usuário vinculado à transportadora" : "Usuário cadastrado. Confirme o e-mail para entrar.");
       setEmail(""); setPassword("");
       qc.invalidateQueries({ queryKey: key });
     } catch (err) { toast.error((err as Error).message); }
@@ -37,7 +32,7 @@ export function UsersManager({ companyId, label }: { companyId?: string; label?:
 
   async function toggle(userId: string, admin: boolean) {
     try {
-      await update({ data: companyId ? { userId, admin, companyId } : { userId, admin } });
+      await setAdmin({ userId, admin, companyId });
       toast.success(admin ? "Acesso liberado" : "Usuário bloqueado");
       qc.invalidateQueries({ queryKey: key });
     } catch (e) { toast.error((e as Error).message); return; }
@@ -46,7 +41,7 @@ export function UsersManager({ companyId, label }: { companyId?: string; label?:
   async function excluir(userId: string, email: string) {
     if (!window.confirm(`Excluir o acesso de ${email}? Esta ação não pode ser desfeita.`)) return;
     try {
-      await remove({ data: companyId ? { userId, companyId } : { userId } });
+      await deleteMember({ userId, companyId });
       toast.success("Usuário excluído");
       qc.invalidateQueries({ queryKey: key });
     } catch (e) { toast.error((e as Error).message); return; }
