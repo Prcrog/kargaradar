@@ -1,5 +1,6 @@
 # KargaRadar
-- [ ] Substituir gestão de usuários por chamadas seguras diretas ao banco e testar lista, liberação, bloqueio, exclusão e cadastro.
+- [x] Substituir gestão de usuários por chamadas seguras diretas ao banco e testar lista, liberação, bloqueio, exclusão e cadastro.
+- [ ] Conferir atualização na Vercel (aguarda endereço do site e nova implantação do código atualizado).
 - [x] Corrigir e validar a visualização dos usuários de cada empresa pelo administrador KargaRadar.
 - [x] Transformar a página inicial em apresentação comercial com funcionamento e planos.
 - [x] Mover a consulta pública para uma página própria de rastreamento.
