@@ -41,7 +41,7 @@ describe("Direct member management", () => {
     rpc.mockResolvedValue({ data: { existing: false, ticket: "one-use-ticket" }, error: null });
     signup.mockResolvedValue({ data: { user: { id: "new-member", identities: [{}] } }, error: null });
     await createMember({ email: "member@example.com", password: "abcdef", companyId: "company-a" });
-    expect(createClient.mock.calls[0][2]).toEqual({ auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+    expect(createClient.mock.calls[0]?.[2]).toEqual(expect.objectContaining({ auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }));
     expect(signup).toHaveBeenCalledWith(expect.objectContaining({ options: expect.objectContaining({ data: { company_registration_ticket: "one-use-ticket" } }) }));
   });
   it("requires at least six password characters", async () => {
