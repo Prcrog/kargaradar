@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { UsersManager } from "@/components/UsersManager";
-import { deleteCompany as deleteCompanyFn } from "@/lib/users.functions";
+import { deleteCompany } from "@/lib/users";
 
 
 function toSlug(v: string) {
@@ -71,7 +70,6 @@ export function CompanySetup() {
 export function PlatformCompanies() {
   const qc = useQueryClient();
   const [busyId, setBusyId] = useState<string | null>(null);
-  const removeCompany = useServerFn(deleteCompanyFn);
   const q = useQuery({ queryKey: ["platformCompanies"], queryFn: async () => {
     const { data, error } = await supabase.from("companies").select("*").order("created_at", { ascending: false });
     if (error) throw error; return data;
@@ -87,7 +85,7 @@ export function PlatformCompanies() {
   async function excluir(id: string, name: string) {
     if (!window.confirm(`Excluir a transportadora ${name} e todos os seus dados? Esta ação não pode ser desfeita.`)) return;
     setBusyId(id);
-    try { await removeCompany({ data: { companyId: id } }); toast.success("Transportadora excluída"); qc.invalidateQueries({ queryKey: ["platformCompanies"] }); }
+    try { await deleteCompany({ companyId: id }); toast.success("Transportadora excluída"); qc.invalidateQueries({ queryKey: ["platformCompanies"] }); }
     catch (e) { toast.error((e as Error).message); }
     finally { setBusyId(null); }
   }
