@@ -76,6 +76,35 @@ export type Database = {
           },
         ]
       }
+      member_registration_tickets: {
+        Row: {
+          company_id: string
+          email: string
+          expires_at: string
+          token_hash: string
+        }
+        Insert: {
+          company_id: string
+          email: string
+          expires_at?: string
+          token_hash: string
+        }
+        Update: {
+          company_id?: string
+          email?: string
+          expires_at?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_registration_tickets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_roles: {
         Row: {
           role: string
@@ -225,6 +254,21 @@ export type Database = {
       is_company_owner: { Args: { _company_id: string }; Returns: boolean }
       is_platform_admin: { Args: never; Returns: boolean }
       join_company: { Args: { _slug: string }; Returns: undefined }
+      list_company_members: {
+        Args: { _company_id?: string }
+        Returns: {
+          confirmed: boolean
+          created_at: string
+          email: string
+          id: string
+          isAdmin: boolean
+          isOwner: boolean
+        }[]
+      }
+      prepare_company_member: {
+        Args: { _company_id?: string; _email: string }
+        Returns: Json
+      }
       register_company: {
         Args: { _cnpj: string; _name: string; _slug: string }
         Returns: string

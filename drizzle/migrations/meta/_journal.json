@@ -50,6 +50,13 @@
       "when": 1792407872050,
       "tag": "0006_platform_admin_read_company_members",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793530365550,
+      "tag": "0007_browser_member_management",
+      "breakpoints": true
     }
   ]
 }
